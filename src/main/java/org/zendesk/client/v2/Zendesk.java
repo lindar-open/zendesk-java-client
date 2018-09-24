@@ -2296,6 +2296,10 @@ public class Zendesk implements Closeable {
             handleList(Holiday.class, "holidays")));
     }
 
+    public SideloadBuilder sideload() {
+        return new SideloadBuilder();
+    }
+
     //////////////////////////////////////////////////////////////////////
     // Helper methods
     //////////////////////////////////////////////////////////////////////
@@ -2425,6 +2429,7 @@ public class Zendesk implements Closeable {
         }
     }
 
+
     protected <T> ZendeskAsyncCompletionHandler<T> handle(final Class<T> clazz, final String name, final Class... typeParams) {
         return new BasicAsyncCompletionHandler<>(clazz, name, typeParams);
     }
@@ -2443,6 +2448,7 @@ public class Zendesk implements Closeable {
             }
         };
     }
+
 
     private static final String NEXT_PAGE = "next_page";
     private static final String END_TIME = "end_time";
@@ -2500,8 +2506,33 @@ public class Zendesk implements Closeable {
         }
     }
 
+    private class PagedAsyncSideloadCompletionHandler<T> extends PagedAsyncCompletionHandler<T> {
+        private final Class<T> clazz;
+
+        public PagedAsyncSideloadCompletionHandler(Class<T> clazz) {
+            this.clazz = clazz;
+        }
+
+        @Override
+        public T onCompleted(Response response) throws Exception {
+            logResponse(response);
+            if (isStatus2xx(response)) {
+                JsonNode responseNode = mapper.readTree(response.getResponseBodyAsBytes());
+                setPagedProperties(responseNode, clazz);
+                return mapper.convertValue(responseNode, clazz);
+            } else if (isRateLimitResponse(response)) {
+                throw new ZendeskResponseRateLimitException(response);
+            }
+            throw new ZendeskResponseException(response);
+        }
+    }
+
     protected <T> PagedAsyncCompletionHandler<List<T>> handleList(final Class<T> clazz, final String name) {
         return new PagedAsyncListCompletionHandler<>(clazz, name);
+    }
+
+    protected <T> PagedAsyncCompletionHandler<T> handleSideload(final Class<T> clazz) {
+        return new PagedAsyncSideloadCompletionHandler<>(clazz);
     }
 
     private static final long FIVE_MINUTES = TimeUnit.MINUTES.toMillis(5);
@@ -2968,6 +2999,52 @@ public class Zendesk implements Closeable {
 
     }
 
+    private class PagedWithSideloadIterable<T> implements Iterable<T> {
+
+        private final Uri url;
+        private final PagedAsyncCompletionHandler<T> handler;
+
+        private PagedWithSideloadIterable(Uri url, PagedAsyncCompletionHandler<T> handler) {
+            this.handler = handler;
+            this.url = url;
+        }
+
+        public Iterator<T> iterator() {
+            return new PagedIterator(url);
+        }
+
+        private class PagedIterator implements Iterator<T> {
+
+            private String nextPage;
+
+            public PagedIterator(Uri url) {
+                this.nextPage = url.toString();
+            }
+
+            public boolean hasNext() {
+                if (nextPage == null || nextPage.equalsIgnoreCase("null")) {
+                    return false;
+                }
+                return true;
+            }
+
+            public T next() {
+                if (!hasNext()) {
+                    throw new NoSuchElementException();
+                }
+
+                T values = complete(submit(req("GET", nextPage), handler));
+                nextPage = handler.getNextPage();
+                return values;
+            }
+
+            public void remove() {
+                throw new UnsupportedOperationException();
+            }
+        }
+
+    }
+
     public static class Builder {
         private AsyncHttpClient client = null;
         private final String url;
@@ -3039,6 +3116,39 @@ public class Zendesk implements Closeable {
                 return new Zendesk(client, url, oauthToken, headers);
             }
             return new Zendesk(client, url, username, password, headers);
+        }
+    }
+
+    public class SideloadBuilder {
+        private Set<String> sideloads = new HashSet<>();
+
+        public SideloadBuilder withUsers() {
+            this.sideloads.add("users");
+            return this;
+        }
+
+        public SideloadBuilder withGroups() {
+            this.sideloads.add("groups");
+            return this;
+        }
+
+        public SideloadBuilder withTickets() {
+            this.sideloads.add("tickets");
+            return this;
+        }
+
+        public Iterable<AuditsWithSideload> getTicketAudits(long id) {
+
+            TemplateUri uri = tmpl("/tickets/{ticketId}/audits.json{?include}{&per_page}")
+                    .set("ticketId", id)
+                    .set("per_page", 1)
+                    .set("include", buildIncludeParam());
+
+            return new PagedWithSideloadIterable<>(uri, handleSideload(AuditsWithSideload.class));
+        }
+
+        private String buildIncludeParam(){
+            return String.join(",", sideloads);
         }
     }
 }
