@@ -20,40 +20,7 @@ import org.asynchttpclient.request.body.multipart.FilePart;
 import org.asynchttpclient.request.body.multipart.StringPart;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.zendesk.client.v2.model.AgentRole;
-import org.zendesk.client.v2.model.Attachment;
-import org.zendesk.client.v2.model.Audit;
-import org.zendesk.client.v2.model.Automation;
-import org.zendesk.client.v2.model.Brand;
-import org.zendesk.client.v2.model.Comment;
-import org.zendesk.client.v2.model.ComplianceDeletionStatus;
-import org.zendesk.client.v2.model.DeletedTicket;
-import org.zendesk.client.v2.model.Field;
-import org.zendesk.client.v2.model.Forum;
-import org.zendesk.client.v2.model.Group;
-import org.zendesk.client.v2.model.GroupMembership;
-import org.zendesk.client.v2.model.Identity;
-import org.zendesk.client.v2.model.JobStatus;
-import org.zendesk.client.v2.model.Macro;
-import org.zendesk.client.v2.model.Metric;
-import org.zendesk.client.v2.model.Organization;
-import org.zendesk.client.v2.model.OrganizationField;
-import org.zendesk.client.v2.model.OrganizationMembership;
-import org.zendesk.client.v2.model.SatisfactionRating;
-import org.zendesk.client.v2.model.SearchResultEntity;
-import org.zendesk.client.v2.model.SortOrder;
-import org.zendesk.client.v2.model.Status;
-import org.zendesk.client.v2.model.SuspendedTicket;
-import org.zendesk.client.v2.model.Ticket;
-import org.zendesk.client.v2.model.TicketForm;
-import org.zendesk.client.v2.model.TicketImport;
-import org.zendesk.client.v2.model.TicketResult;
-import org.zendesk.client.v2.model.Topic;
-import org.zendesk.client.v2.model.Trigger;
-import org.zendesk.client.v2.model.TwitterMonitor;
-import org.zendesk.client.v2.model.User;
-import org.zendesk.client.v2.model.UserField;
-import org.zendesk.client.v2.model.UserRelatedInfo;
+import org.zendesk.client.v2.model.*;
 import org.zendesk.client.v2.model.dynamic.DynamicContentItem;
 import org.zendesk.client.v2.model.dynamic.DynamicContentItemVariant;
 import org.zendesk.client.v2.model.hc.Article;
@@ -85,11 +52,13 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Objects;
+import java.util.Set;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
@@ -365,6 +334,11 @@ public class Zendesk implements Closeable {
     public ListenableFuture<JobStatus> updateTicketsAsync(List<Ticket> tickets) {
         return submit(req("PUT", cnst("/tickets/update_many.json"), JSON, json(
                 Collections.singletonMap("tickets", tickets))), handleJobStatus());
+    }
+
+    public ListenableFuture<JobStatus> updateTicketsAsync(TicketBatch ticket, long id, long... ids) {
+        return submit(req("PUT", tmpl("/tickets/update_many.json{?ids}").set("ids", idArray(id, ids)), JSON, json(
+                Collections.singletonMap("ticket", ticket))), handleJobStatus());
     }
 
     public void markTicketAsSpam(Ticket ticket) {
