@@ -47,4 +47,6 @@ public class History {
     private String newComment;
     @JsonProperty("comment")
     private String comment;
+    @JsonProperty("attachment")
+    private Attachment attachment;
 }

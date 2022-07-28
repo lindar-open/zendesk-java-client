@@ -29,11 +29,11 @@ public class Chat {
     @JsonProperty("history")
     private List<History> history;
     @JsonProperty("comment")
-    private Object comment;
+    private String comment;
     @JsonProperty("referrer_search_terms")
     private String referrerSearchTerms;
     @JsonProperty("tags")
-    private List<Object> tags;
+    private List<String> tags;
     @JsonProperty("end_timestamp")
     private Date         endTimestamp;
     @JsonProperty("referrer_search_engine")
