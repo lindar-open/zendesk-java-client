@@ -6,17 +6,18 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 
 import java.util.Date;
+import java.util.List;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Data
 public class History {
 
     @JsonProperty("department_id")
-    private Object departmentId;
+    private Object       departmentId;
     @JsonProperty("department_name")
-    private String departmentName;
+    private String       departmentName;
     @JsonProperty("channel")
-    private String channel;
+    private String       channel;
     @JsonProperty("name")
     private String name;
     @JsonProperty("index")
@@ -48,5 +49,7 @@ public class History {
     @JsonProperty("comment")
     private String comment;
     @JsonProperty("attachment")
-    private Attachment attachment;
+    private Attachment   attachment;
+    @JsonProperty("new_tags")
+    private List<String> newTags;
 }
