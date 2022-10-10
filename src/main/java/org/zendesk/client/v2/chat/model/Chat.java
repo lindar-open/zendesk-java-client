@@ -1,8 +1,11 @@
 
 package org.zendesk.client.v2.chat.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import lombok.Data;
 
 import java.util.Date;
@@ -52,8 +55,6 @@ public class Chat {
     private Integer duration;
     @JsonProperty("conversions")
     private List<Object> conversions;
-    @JsonProperty("webpath")
-    private List<Webpath> webpath;
     @JsonProperty("triggered")
     private Boolean triggered;
     @JsonProperty("visitor")
