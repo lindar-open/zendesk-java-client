@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author stephenc
@@ -36,6 +37,8 @@ public class Ticket extends Request implements SearchResultEntity {
     private Long ticketFormId;
     private Long brandId;
     private Boolean isPublic;
+    private Map<String, Object> metadata;
+
 
     public Ticket() {
     }
@@ -282,6 +285,14 @@ public class Ticket extends Request implements SearchResultEntity {
                 ", createdAt=" + createdAt +
                 ", updatedAt=" + updatedAt +
                 '}';
+    }
+
+    public Map<String, Object> getMetadata() {
+        return metadata;
+    }
+
+    public void setMetadata(Map<String, Object> metadata) {
+        this.metadata = metadata;
     }
 
     public static class Requester {
