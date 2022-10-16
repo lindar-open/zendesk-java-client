@@ -32,9 +32,10 @@ public class ZendeskChat {
                 .target(ZendeskChatApi.class, "https://www.zopim.com");
     }
 
-    public ZendeskChatModel getChats(Instant startTime) {
+    public ZendeskChatModel getChats(Instant startTime, int limit) {
         Map<String, Object> params = new HashMap<>();
         params.put("start_time", startTime.getEpochSecond());
+        params.put("limit", limit);
         params.put("fields", "chats(*)");
         return api.getChats(params);
     }
