@@ -17,5 +17,7 @@ public class Attachment {
     private String mimeType;
     @JsonProperty("url")
     private String url;
+    @JsonProperty("deleted")
+    private boolean deleted;
 
 }
