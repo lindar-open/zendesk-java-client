@@ -334,7 +334,7 @@ public class Zendesk implements Closeable {
     }
 
     public InputStream downloadVoiceMessage(String url) {
-        return complete(submit(req("GET", tmpl(url)), new ZendeskAsyncCompletionHandler<InputStream>() {
+        return complete(submit(req("GET", url), new ZendeskAsyncCompletionHandler<InputStream>() {
             @Override public InputStream onCompleted(Response response) throws Exception {
                 return response.getResponseBodyAsStream();
             }
