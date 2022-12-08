@@ -2,6 +2,8 @@ package org.zendesk.client.v2.model.events;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import java.time.Instant;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -13,7 +15,7 @@ public class VoiceCommentEvent extends PublicPrivateEvent {
 
     private static final long serialVersionUID = 1L;
 
-    private Map<String, Object> data;
+    private VoiceCommentEventData data;
     private String formattedFrom;
     private String formattedTo;
     private String body;
@@ -64,11 +66,11 @@ public class VoiceCommentEvent extends PublicPrivateEvent {
         this.trusted = trusted;
     }
 
-    public Map<String, Object> getData() {
+    public VoiceCommentEventData getData() {
         return data;
     }
 
-    public void setData(Map<String, Object> data) {
+    public void setData(VoiceCommentEventData data) {
         this.data = data;
     }
 
@@ -102,5 +104,35 @@ public class VoiceCommentEvent extends PublicPrivateEvent {
                 ", trusted=" + trusted +
                 ", authorId=" + authorId +
                 '}';
+    }
+
+    public static class VoiceCommentEventData {
+        @JsonProperty("started_at")
+        private Date   startedAt;
+        @JsonProperty("recording_url")
+        private String recordingUrl;
+
+        public Date getStartedAt() {
+            return startedAt;
+        }
+
+        public void setStartedAt(Date startedAt) {
+            this.startedAt = startedAt;
+        }
+
+        public String getRecordingUrl() {
+            return recordingUrl;
+        }
+
+        public void setRecordingUrl(String recordingUrl) {
+            this.recordingUrl = recordingUrl;
+        }
+
+        @Override public String toString() {
+            return "VoiceCommentEventData{" +
+                "startedAt=" + startedAt +
+                ", recordingUrl='" + recordingUrl + '\'' +
+                '}';
+        }
     }
 }
