@@ -9,6 +9,7 @@ import feign.RequestLine;
 import feign.jackson.JacksonDecoder;
 import feign.jackson.JacksonEncoder;
 import org.zendesk.client.v2.chat.model.Agent;
+import org.zendesk.client.v2.chat.model.Chat;
 import org.zendesk.client.v2.chat.model.Visitor;
 import org.zendesk.client.v2.chat.model.ZendeskChatModel;
 
@@ -48,6 +49,10 @@ public class ZendeskChat {
         return api.getAgent(agentId);
     }
 
+    public Chat getSingleChat(String chatId) {
+        return api.getSingleChat(chatId);
+    }
+
     private interface ZendeskChatApi {
         @RequestLine("GET /api/v2/incremental/chats")
         ZendeskChatModel getChats(@QueryMap Map<String, Object> params);
@@ -55,7 +60,10 @@ public class ZendeskChat {
         @RequestLine("GET /api/v2/visitors/{visitorId}")
         Visitor getVisitor(@Param("visitorId") String visitorId);
 
-        @RequestLine(("GET /api/v2/agents/{agentId}"))
+        @RequestLine("GET /api/v2/agents/{agentId}")
         Agent getAgent(@Param("agentId") String agentId);
+
+        @RequestLine("GET /api/v2/chats/{chatId}")
+        Chat getSingleChat(@Param("chatId") String chatId);
     }
 }
